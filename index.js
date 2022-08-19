@@ -36,44 +36,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var express = require('express');
 var app = express();
-var http = require('http');
-var httpServer = http.createServer(app);
+var https = require('http');
+var httpsServer = https.createServer(app);
+var udp = require('dgram');
+var udpServer = udp.createSocket("udp4");
 var newLocal = "socket.io";
 var Server = require(newLocal).Server;
-var io = new Server(httpServer);
+var io = new Server(httpsServer);
 var con;
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
-/*
-io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
-      console.log('message: ' + msg);
+io.on('connection', function (socket) {
+    socket.on('chat message', function (msg) {
+        console.log('message: ' + msg);
     });
-    
-  });
-  */
-httpServer.listen(3000, function () {
+    socket.on('discconect', function (msg) {
+        console.log("dissconnect");
+    });
+    socket.on('chat message', function (msg) {
+        io.emit('chat message', msg);
+    });
+});
+httpsServer.listen(3001, function () {
     console.log('listening on *:3000');
 });
 function test() {
     return __awaiter(this, void 0, void 0, function () {
-        var i, c;
+        var i;
         return __generator(this, function (_a) {
             i = 0;
-            while (1) {
-                con = io.on('connection');
-                if (con) {
-                    con.push(c);
-                    c = 0;
-                }
-                con[i].on('chat message', function (msg) {
-                    console.log('message: ' + msg);
-                });
-                if (con.length <= i)
-                    i = 0;
-                i++;
-            }
             return [2 /*return*/];
         });
     });
