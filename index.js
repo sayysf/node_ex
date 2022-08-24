@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,40 +35,74 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+exports.__esModule = true;
 var express = require('express');
 var app = express();
-var https = require('http');
-var httpsServer = https.createServer(app);
+var fs = require("fs");
+var http = require('http');
+var httpServer = http.createServer(app);
 var udp = require('dgram');
 var udpServer = udp.createSocket("udp4");
 var newLocal = "socket.io";
 var Server = require(newLocal).Server;
-var io = new Server(httpsServer);
-var con;
+var io = new Server(httpServer);
+var con = [];
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 io.on('connection', function (socket) {
-    socket.on('chat message', function (msg) {
+    con.push(socket);
+    console.log(socket.username);
+    console.log("connect= " + socket.id);
+    socket.on(["hello", "PRIV"], function (msg) {
         console.log('message: ' + msg);
     });
-    socket.on('discconect', function (msg) {
-        console.log("dissconnect");
+    socket.on("hello", function (msg) {
+        console.log('message: ' + msg);
     });
-    socket.on('chat message', function (msg) {
-        io.emit('chat message', msg);
+    socket.on('disconnect', function () {
+        console.log("dissconnect= " + socket.id);
+        con.splice(con.indexOf(socket), 1);
+    });
+    socket.on("PRIV", function (msg) {
+        io.emit("PRIV", msg);
     });
 });
-httpsServer.listen(3001, function () {
-    console.log('listening on *:3000');
+var listener = httpServer.listen(3001, function () {
+    console.log('listening on *:3001');
 });
-function test() {
+function delay(delayInms) {
+    return new Promise(function (resolve) {
+        setTimeout(function () {
+            resolve(2);
+        }, delayInms);
+    });
+}
+function asdad() {
     return __awaiter(this, void 0, void 0, function () {
         var i;
         return __generator(this, function (_a) {
-            i = 0;
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    i = 0;
+                    _a.label = 1;
+                case 1:
+                    if (!1) return [3 /*break*/, 3];
+                    return [4 /*yield*/, delay(2000)];
+                case 2:
+                    _a.sent();
+                    console.log("lengt= " + con.length);
+                    if (!con.length)
+                        return [3 /*break*/, 1];
+                    if (i >= con.length)
+                        i = 0;
+                    console.log("connect " + i);
+                    console.log(con[i]._events);
+                    i++;
+                    return [3 /*break*/, 1];
+                case 3: return [2 /*return*/];
+            }
         });
     });
 }
-test();
+//asdad();
